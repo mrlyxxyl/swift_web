@@ -28,7 +28,8 @@ public class FileService {
     static Header authToken;
 
     static {
-        Map<String, Header> map = genUrlAndToken("http://192.168.1.181:8080/auth/v1.0", "test:tester", "testing");
+        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
+//        Map<String, Header> map = genUrlAndToken("http://192.168.1.181:8080/auth/v1.0", "test:tester", "testing"); //local
         storageUrl = map.get("storageUrl");
         authToken = map.get("authToken");
     }
