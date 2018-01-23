@@ -12,8 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -37,14 +36,18 @@ public class SwiftUtil {
 
         long start = System.currentTimeMillis();
 
-//        createContainer(storageUrl, authToken, "files");
-//        uploadFile(storageUrl, authToken, "files", "e:", "ccc.png");
+//        createContainer(storageUrl, authToken, "xxx");
+//        uploadFile(storageUrl, authToken, "images", "e:", "sss.png");
 
-        FileInputStream fis = new FileInputStream("e:/xxx.xlsx");
+//        FileInputStream fis = new FileInputStream("e:/xxx.xlsx");
 //        upload(storageUrl, authToken, fis, "files", "xxx.xlsx");
 
-        downloadFile(storageUrl, authToken, "files", "e:", "1516681784028.png");
+//        downloadFile(storageUrl, authToken, "files", "e:", "1516681784028.png");
 //        deleteFile(storageUrl, authToken, "live", "bbb.png");
+//        deleteContainer(storageUrl, authToken, "xxx");
+
+//        getContainers(storageUrl, authToken);
+//        getObjects(storageUrl, authToken, "images");
 
         System.out.println("use time:" + (System.currentTimeMillis() - start));
     }
@@ -224,6 +227,42 @@ public class SwiftUtil {
     }
 
     /**
+     * 删除容器(容器内不能有对象)
+     *
+     * @param storageUrl
+     * @param authToken
+     * @param containerName
+     */
+    public static void deleteContainer(Header storageUrl, Header authToken, String containerName) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpDelete httpDelete = new HttpDelete(storageUrl.getValue() + "/" + containerName);
+            httpDelete.addHeader(authToken);
+            HttpResponse response = httpClient.execute(httpDelete);
+            int code = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK == code) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    InputStream input = entity.getContent();
+                    ByteArrayOutputStream aos = new ByteArrayOutputStream();
+                    byte b[] = new byte[1024];
+                    int j;
+                    while ((j = input.read(b)) != -1) {
+                        aos.write(b, 0, j);
+                    }
+                    String result = new String(aos.toByteArray());
+                    System.out.println(result);
+                }
+                if (entity != null) {
+                    entity.consumeContent();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 删除文件
      *
      * @param storageUrl
@@ -257,6 +296,73 @@ public class SwiftUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 获取容器列表
+     *
+     * @param storageUrl
+     * @param authToken
+     */
+    public static List<String> getContainers(Header storageUrl, Header authToken) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(storageUrl.getValue());
+            httpGet.addHeader(authToken);
+            HttpResponse response = httpClient.execute(httpGet);
+            int code = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK == code) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    InputStream input = entity.getContent();
+                    ByteArrayOutputStream aos = new ByteArrayOutputStream();
+                    byte b[] = new byte[1024];
+                    int j;
+                    while ((j = input.read(b)) != -1) {
+                        aos.write(b, 0, j);
+                    }
+                    String result = new String(aos.toByteArray());
+                    return Arrays.asList(result.split("\n"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<String>();
+    }
+
+    /**
+     * 获取容器内对象列表
+     *
+     * @param storageUrl
+     * @param authToken
+     * @param containerName 容器名称
+     */
+    public static List<String> getObjects(Header storageUrl, Header authToken, String containerName) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(storageUrl.getValue() + "/" + containerName);
+            httpGet.addHeader(authToken);
+            HttpResponse response = httpClient.execute(httpGet);
+            int code = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK == code) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    InputStream input = entity.getContent();
+                    ByteArrayOutputStream aos = new ByteArrayOutputStream();
+                    byte b[] = new byte[1024];
+                    int j;
+                    while ((j = input.read(b)) != -1) {
+                        aos.write(b, 0, j);
+                    }
+                    String result = new String(aos.toByteArray());
+                    return Arrays.asList(result.split("\n"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<String>();
     }
 
     class SyncDataThread extends Thread {
