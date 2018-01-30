@@ -22,13 +22,13 @@ import java.util.concurrent.Semaphore;
  * Date: 18-1-11
  */
 public class SwiftUtil {
-    private static final int THREAD_NUM = 30;//线程数量
+    private static final int THREAD_NUM = 20;//线程数量
 
-    private static final int SEMAPHORE_NUM = 30;//信号量数量
+    private static final int SEMAPHORE_NUM = 20;//信号量数量
 
     public static void main(String[] args) throws IOException {
-//        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
-        Map<String, Header> map = genUrlAndToken("http://192.168.1.181:8080/auth/v1.0", "test:tester", "testing");
+        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
+//        Map<String, Header> map = genUrlAndToken("http://192.168.1.171:8080/auth/v1.0", "test:tester", "testing");
         Header storageUrl = map.get("storageUrl");
         Header authToken = map.get("authToken");
         System.out.println(storageUrl.getValue());
@@ -36,19 +36,20 @@ public class SwiftUtil {
 
         long start = System.currentTimeMillis();
 
-//        createContainer(storageUrl, authToken, "xxx");
-//        uploadFile(storageUrl, authToken, "images", "e:", "sss.png");
+//        createContainer(storageUrl, authToken, "files");
+//        uploadFile(storageUrl, authToken, "cjsTest", "e:/tt/", "1.zip");
 
 //        FileInputStream fis = new FileInputStream("e:/xxx.xlsx");
 //        upload(storageUrl, authToken, fis, "files", "xxx.xlsx");
 
 //        downloadFile(storageUrl, authToken, "files", "e:", "1516681784028.png");
-//        deleteFile(storageUrl, authToken, "live", "bbb.png");
-//        deleteContainer(storageUrl, authToken, "xxx");
+//        deleteFile(storageUrl, authToken, "files", "1517291790631.zip");
+//        deleteContainer(storageUrl, authToken, "files");
 
-//        getContainers(storageUrl, authToken);
-//        getObjects(storageUrl, authToken, "images");
+        System.out.println(getContainers(storageUrl, authToken));
+//        System.out.println(getObjects(storageUrl, authToken, "files"));
 
+//        new SwiftUtil().threadExec(storageUrl, authToken);
         System.out.println("use time:" + (System.currentTimeMillis() - start));
     }
 
@@ -57,7 +58,7 @@ public class SwiftUtil {
 
         ExecutorService list = Executors.newFixedThreadPool(THREAD_NUM);
         Semaphore semaphore = new Semaphore(SEMAPHORE_NUM);
-        for (int i = 1; i <= 30; i++) {
+        for (int i = 1; i <= 20; i++) {
             list.submit(new SyncDataThread(semaphore, storageUrl, authToken, i));
         }
         list.shutdown();
@@ -141,13 +142,13 @@ public class SwiftUtil {
             File file = new File(filePath + "/" + fileName);
             FileEntity fileEntity = new FileEntity(file);
             fileEntity.setContentType("text/plain; charset=\"UTF-8\"");
-            HttpPut httpPost = new HttpPut(storageUrl.getValue() + "/" + containerName + "/" + fileName);
+            HttpPut httpPost = new HttpPut(storageUrl.getValue() + "/" + containerName + "/" + System.currentTimeMillis() + ".zip");
             httpPost.setHeader(authToken);
             httpPost.setEntity(fileEntity);
             CloseableHttpResponse rsp = httpClient.execute(httpPost);
             Header[] headers = rsp.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {
-                System.out.println(headers[i]);
+//                System.out.println(headers[i]);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -381,8 +382,11 @@ public class SwiftUtil {
         public void run() {
             try {
                 semaphore.acquire();
-//                uploadFile(storageUrl, authToken, "zip", "e:", i + ".zip");
-                downloadFile(storageUrl, authToken, "zip", "e:/tt/", "1516007867974.zip");
+                long start = System.currentTimeMillis();
+                uploadFile(storageUrl, authToken, "files", "e:/tt/", i + ".zip");
+                long end = System.currentTimeMillis();
+                System.out.println(i + "\tstart time:" + start + "\tend time:" + end + "\t" + (end - start));
+//                downloadFile(storageUrl, authToken, "zip", "e:/tt/", "1516007867974.zip");
                 semaphore.release();
             } catch (Exception e) {
                 e.printStackTrace();
