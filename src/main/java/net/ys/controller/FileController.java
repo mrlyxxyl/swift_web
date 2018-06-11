@@ -57,4 +57,22 @@ public class FileController {
         out.close();
         entity.consumeContent();
     }
+
+    @RequestMapping("showImg")
+    public void showImg(HttpServletResponse response, String fileName) throws IOException {
+        HttpEntity entity = FileService.download(fileName);
+        if (entity == null) {
+            return;
+        }
+        InputStream is = entity.getContent();
+        ServletOutputStream out = response.getOutputStream();
+        byte[] bytes = new byte[1024];
+        int len;
+        while ((len = is.read(bytes)) > 0) {
+            out.write(bytes, 0, len);
+            out.flush();
+        }
+        out.close();
+        entity.consumeContent();
+    }
 }
