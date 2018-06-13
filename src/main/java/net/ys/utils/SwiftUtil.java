@@ -27,8 +27,8 @@ public class SwiftUtil {
     private static final int SEMAPHORE_NUM = 20;//信号量数量
 
     public static void main(String[] args) throws IOException {
-        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
-//        Map<String, Header> map = genUrlAndToken("http://192.168.1.171:8080/auth/v1.0", "test:tester", "testing");
+//        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
+        Map<String, Header> map = genUrlAndToken("http://localhost/auth/v1.0", "test:tester", "testing");
         Header storageUrl = map.get("storageUrl");
         Header authToken = map.get("authToken");
         System.out.println(storageUrl.getValue());
@@ -39,14 +39,14 @@ public class SwiftUtil {
 //        createContainer(storageUrl, authToken, "files");
 //        uploadFile(storageUrl, authToken, "cjsTest", "e:/tt/", "1.zip");
 
-//        FileInputStream fis = new FileInputStream("e:/xxx.xlsx");
-//        upload(storageUrl, authToken, fis, "files", "xxx.xlsx");
+        FileInputStream fis = new FileInputStream("f:/maven.zip");
+        upload(storageUrl, authToken, fis, "new_files", System.currentTimeMillis() + ".zip");
 
 //        downloadFile(storageUrl, authToken, "files", "e:", "1516681784028.png");
 //        deleteFile(storageUrl, authToken, "files", "1517291790631.zip");
 //        deleteContainer(storageUrl, authToken, "files");
 
-        System.out.println(getContainers(storageUrl, authToken));
+//        System.out.println(getContainers(storageUrl, authToken));
 //        System.out.println(getObjects(storageUrl, authToken, "files"));
 
 //        new SwiftUtil().threadExec(storageUrl, authToken);

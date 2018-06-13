@@ -4,8 +4,8 @@
     <defaultAnt bundledAnt="true" />
   </component>
   <component name="ArtifactManager">
-    <artifact type="exploded-war" build-on-make="true" name="swift_web">
-      <output-path>$PROJECT_DIR$/out/artifacts/swift_web</output-path>
+    <artifact type="exploded-war" build-on-make="true" name="swift">
+      <output-path>$PROJECT_DIR$/out/artifacts/swift</output-path>
       <root id="root">
         <element id="javaee-facet-resources" facet="swift_web/web/Web" />
         <element id="directory" name="WEB-INF">

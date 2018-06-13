@@ -6,12 +6,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +26,7 @@ public class FileService {
     static Header authToken;
 
     static {
-        Map<String, Header> map = genUrlAndToken("http://112.112.12.76:11080/auth/v1.0", "test:tester", "testing");
-//        Map<String, Header> map = genUrlAndToken("http://192.168.1.181:8080/auth/v1.0", "test:tester", "testing"); //local
+        Map<String, Header> map = genUrlAndToken("http://10.30.30.101/auth/v1.0", "test:tester", "testing");
         storageUrl = map.get("storageUrl");
         authToken = map.get("authToken");
     }
@@ -38,14 +35,14 @@ public class FileService {
         if (storageUrl == null || authToken == null) {
             return false;
         }
-        return upload(storageUrl, authToken, fis, "files", fileName);
+        return upload(storageUrl, authToken, fis, "zl_files", fileName);
     }
 
     public static HttpEntity download(String fileName) throws IOException {
         if (storageUrl == null || authToken == null) {
             return null;
         }
-        return downloadFile("files", fileName);
+        return downloadFile("zl_files", fileName);
     }
 
     /**
@@ -61,25 +58,14 @@ public class FileService {
             HttpResponse rsp = httpClient.execute(req);
             Header storageUrl = rsp.getFirstHeader("X-Storage-Url");
             Header authToken = rsp.getFirstHeader("X-Auth-Token");
+            Header authTokenExpires = rsp.getFirstHeader("X-Auth-Token-Expires");
+
+            System.out.println("storageUrl:" + storageUrl.getValue());
+            System.out.println("authToken:" + authToken.getValue());
+            System.out.println("authTokenExpires:" + authTokenExpires.getValue());
+
             map.put("storageUrl", storageUrl);
             map.put("authToken", authToken);
-
-            HttpEntity entity = rsp.getEntity();
-            Header[] headers = rsp.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                System.out.println(headers[i]);
-            }
-            if (entity != null) {
-                System.out.println(EntityUtils.toString(entity));
-            }
-
-            HttpHead hph = new HttpHead(storageUrl.getValue());
-            hph.addHeader(authToken);
-            rsp = httpClient.execute(hph);
-            headers = rsp.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                System.out.println(headers[i]);
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
