@@ -27,6 +27,11 @@ public class SwiftUtil {
         Map<String, Header> map = genUrlAndToken("http://10.30.30.101/auth/v1.0", "test:tester", "testing");
         Header storageUrl = map.get("storageUrl");
         Header authToken = map.get("authToken");
+        Header authTokenExpires = map.get("authTokenExpires");//authToken有过期时间，实际开发应该实时获取或者判断token是否过期，若过期需要重新获取
+
+        System.out.println("storageUrl:" + storageUrl.getValue());
+        System.out.println("authToken:" + authToken.getValue());
+        System.out.println("authTokenExpires:" + authTokenExpires.getValue());
 
         long start = System.currentTimeMillis();
 
@@ -61,13 +66,9 @@ public class SwiftUtil {
             Header storageUrl = rsp.getFirstHeader("X-Storage-Url");
             Header authToken = rsp.getFirstHeader("X-Auth-Token");
             Header authTokenExpires = rsp.getFirstHeader("X-Auth-Token-Expires");
-
-            System.out.println("storageUrl:" + storageUrl.getValue());
-            System.out.println("authToken:" + authToken.getValue());
-            System.out.println("authTokenExpires:" + authTokenExpires.getValue());
-
             map.put("storageUrl", storageUrl);
             map.put("authToken", authToken);
+            map.put("authTokenExpires", authTokenExpires);
         } catch (Exception e) {
             e.printStackTrace();
         }
