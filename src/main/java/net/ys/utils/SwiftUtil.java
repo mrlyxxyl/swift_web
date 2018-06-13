@@ -16,25 +16,17 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 
 /**
  * User: LiWenC
  * Date: 18-1-11
  */
 public class SwiftUtil {
-    private static final int THREAD_NUM = 20;//线程数量
-
-    private static final int SEMAPHORE_NUM = 20;//信号量数量
 
     public static void main(String[] args) throws IOException {
-        Map<String, Header> map = genUrlAndToken("http://localhost/auth/v1.0", "test:tester", "testing");
+        Map<String, Header> map = genUrlAndToken("http://10.30.30.101/auth/v1.0", "test:tester", "testing");
         Header storageUrl = map.get("storageUrl");
         Header authToken = map.get("authToken");
-        System.out.println(storageUrl.getValue());
-        System.out.println(authToken.getValue());
 
         long start = System.currentTimeMillis();
 
@@ -53,19 +45,6 @@ public class SwiftUtil {
 
 //        new SwiftUtil().threadExec(storageUrl, authToken);
         System.out.println("use time:" + (System.currentTimeMillis() - start));
-    }
-
-
-    private void threadExec(Header storageUrl, Header authToken) {
-
-        ExecutorService list = Executors.newFixedThreadPool(THREAD_NUM);
-        Semaphore semaphore = new Semaphore(SEMAPHORE_NUM);
-        for (int i = 1; i <= 20; i++) {
-            list.submit(new SyncDataThread(semaphore, storageUrl, authToken, i));
-        }
-        list.shutdown();
-        semaphore.acquireUninterruptibly(SEMAPHORE_NUM);
-        semaphore.release(SEMAPHORE_NUM);
     }
 
     /**
@@ -354,33 +333,5 @@ public class SwiftUtil {
             e.printStackTrace();
         }
         return new ArrayList<String>();
-    }
-
-    class SyncDataThread extends Thread {
-        private Semaphore semaphore;
-        private Header storageUrl;
-        private Header authToken;
-        private int i;
-
-        public SyncDataThread(Semaphore semaphore, Header storageUrl, Header authToken, int i) {
-            this.semaphore = semaphore;
-            this.storageUrl = storageUrl;
-            this.authToken = authToken;
-            this.i = i;
-        }
-
-        public void run() {
-            try {
-                semaphore.acquire();
-                long start = System.currentTimeMillis();
-                uploadFile(storageUrl, authToken, "files", "e:/tt/", i + ".zip");
-                long end = System.currentTimeMillis();
-                System.out.println(i + "\tstart time:" + start + "\tend time:" + end + "\t" + (end - start));
-//                downloadFile(storageUrl, authToken, "zip", "e:/tt/", "1516007867974.zip");
-                semaphore.release();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
