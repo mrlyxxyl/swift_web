@@ -24,11 +24,14 @@ public class FileService {
 
     static Header storageUrl;
     static Header authToken;
+    static Header authTokenExpires;
 
     static {
+        //authToken有过期时间，为了测试搞成静态的，实际开发应该实时获取或者判断token是否过期，若过期需要重新获取
         Map<String, Header> map = genUrlAndToken("http://10.30.30.101/auth/v1.0", "test:tester", "testing");
         storageUrl = map.get("storageUrl");
         authToken = map.get("authToken");
+        authTokenExpires = map.get("authTokenExpires");//单位秒
     }
 
     public static boolean upload(InputStream fis, String fileName) throws IOException {
@@ -66,6 +69,7 @@ public class FileService {
 
             map.put("storageUrl", storageUrl);
             map.put("authToken", authToken);
+            map.put("authTokenExpires", authTokenExpires);
         } catch (Exception e) {
             e.printStackTrace();
         }
